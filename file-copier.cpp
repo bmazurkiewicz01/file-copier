@@ -3,7 +3,7 @@
 #include <string.h>
 
 bool fileExists(const char*);
-bool copyFile(const char*, const char*, char*, const char*);
+bool copyFile(const char*, const char*, int, const char*);
 
 int main(int argc, char** argv) {
 	if (argc < 4) {
@@ -21,13 +21,10 @@ int main(int argc, char** argv) {
 	}
 
 	int bufferSize = atoi(argv[4]);
-	char* buffer = (char*)malloc(bufferSize);
 
-	if (copyFile(argv[1], argv[2], buffer, argv[3])) {
+	if (copyFile(argv[1], argv[2], bufferSize, argv[3])) {
 		printf_s("Plik zostal skopiowany.\n");
 	}
-	
-	free(buffer);
 }
 
 bool fileExists(const char* fileName) {
@@ -40,7 +37,7 @@ bool fileExists(const char* fileName) {
 	return false;
 }
 
-bool copyFile(const char* sourceFileName, const char* destFileName, char* buffer, const char* mode) {
+bool copyFile(const char* sourceFileName, const char* destFileName, int bufferSize, const char* mode) {
 	FILE* sourceFile;
 	FILE* destFile;
 
@@ -61,15 +58,17 @@ bool copyFile(const char* sourceFileName, const char* destFileName, char* buffer
 		return false;
 	}
 
+	char* buffer = (char*) malloc(bufferSize);
 	size_t n;
 
 	while (!feof(sourceFile)) {
-		n = fread(buffer, 1, sizeof buffer, sourceFile);
+		n = fread(buffer, 1, bufferSize, sourceFile);
 		fwrite(buffer, 1, n, destFile);
 	}
 
 	fclose(sourceFile);
 	fclose(destFile);
+	free(buffer);
 
 	return true;
 }
